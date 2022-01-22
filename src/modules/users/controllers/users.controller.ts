@@ -1,10 +1,11 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/decorators/user.decorator';
 import { JwtUserPayload } from 'src/modules/auth/dto/jwtPayload.dto';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { UsersService } from '../services/users.service';
 
+@ApiTags('users')
 @ApiBearerAuth()
 @Controller()
 export class UsersController {
@@ -13,6 +14,6 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@User() jwtUser: JwtUserPayload) {
-    return this.usersService.fineOneWithoutPassword({ id: jwtUser.userId });
+    return this.usersService.fineOneWithoutPassword(jwtUser.userId);
   }
 }

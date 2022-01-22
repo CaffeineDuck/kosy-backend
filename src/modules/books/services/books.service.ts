@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { CreateBookDto } from '../dto/create-book.dto';
 import { UpdateBookDto } from '../dto/update-book.dto';
@@ -7,26 +7,44 @@ import { UpdateBookDto } from '../dto/update-book.dto';
 export class BooksService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(createBookDto: CreateBookDto) {
-    return this.prismaService.book.create({ data: createBookDto });
+  async create(createBookDto: CreateBookDto, sellerId: number) {
+    return this.prismaService.book.create({
+      data: { ...createBookDto, seller: { connect: { id: sellerId } } },
+    });
   }
 
-  async findAll() {
-    return this.prismaService.book.findMany();
+  async findAll(userId: number) {
+    return this.prismaService.book.findMany({
+      where: { seller: { id: userId } },
+    });
   }
 
-  async findOne(id: number) {
-    return this.prismaService.book.findUnique({ where: { id } });
+  async findOne(id: number, userId: number) {
+    return this.prismaService.book.findFirst({
+      where: { id, seller: { id: userId } },
+    });
   }
 
-  async update(id: number, updateBookDto: UpdateBookDto) {
+  async update(id: number, updateBookDto: UpdateBookDto, userId: number) {
+    const book = await this.prismaService.book.findUnique({ where: { id } });
+
+    if (book.sellerId != userId) {
+      throw new ForbiddenException('You are not the seller of this book');
+    }
+
     return this.prismaService.book.update({
       where: { id },
       data: updateBookDto,
     });
   }
 
-  async remove(id: number) {
+  async remove(id: number, userId: number) {
+    const book = await this.prismaService.book.findUnique({ where: { id } });
+
+    if (book.sellerId != userId) {
+      throw new ForbiddenException('You are not the seller of this book');
+    }
+
     return this.prismaService.book.delete({ where: { id } });
   }
 }
