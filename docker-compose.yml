@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  redis:
+    image: redis:latest
+    restart: always
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+    env_file: .env
+
+  server:
+    build: .
+    env_file: .env
+    depends_on:
+      - postgres
+    links:
+      - postgres:postgres
+    volumes:
+      - ./:/server
+    ports:
+      - "3000:3000"
+      - "5555:5555"
+
+volumes:
+  postgres_db:
