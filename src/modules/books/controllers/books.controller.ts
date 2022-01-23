@@ -1,68 +1,41 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
-import { BooksService } from '../services/books.service';
-import { CreateBookDto } from '../dto/create-book.dto';
-import { UpdateBookDto } from '../dto/update-book.dto';
+import { Controller, Get, Param, Query } from '@nestjs/common';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Book } from '@prisma/client';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { User } from 'src/decorators/user.decorator';
-import { JwtUserPayload } from 'src/modules/auth/dto/jwtPayload.dto';
-import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
+import { PartialBookDto } from '../dto/partial-book.dto';
+import { BooksService } from '../services/books.service';
 
 @ApiTags('books')
-@ApiBearerAuth()
 @Controller('books')
 export class BooksController {
   constructor(private readonly booksService: BooksService) {}
 
-  @Post()
-  @UseGuards(JwtAuthGuard)
-  async create(
-    @Body() createBookDto: CreateBookDto,
-    @User() userPayload: JwtUserPayload,
-  ): Promise<Book> {
-    return this.booksService.create(createBookDto, userPayload.userId);
+  @ApiQuery({ name: 'take', required: false })
+  @ApiQuery({ name: 'skip', required: false })
+  @Get('latest')
+  async latestBooks(
+    @Query('take') take: string,
+    @Query('skip') skip: string,
+  ): Promise<PartialBookDto[]> {
+    return this.booksService.latest(skip, take);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  async findAll(@User() userPayload: JwtUserPayload): Promise<Book[]> {
-    return this.booksService.findAll(userPayload.userId);
+  @ApiQuery({ name: 'take', required: false })
+  @ApiQuery({ name: 'skip', required: false })
+  @Get('top')
+  async topBooks(
+    @Query('take') take: string,
+    @Query('skip') skip: string,
+  ): Promise<PartialBookDto[]> {
+    return this.booksService.top(skip, take);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  async findOne(
-    @Param('id') id: string,
-    @User() userPayload: JwtUserPayload,
-  ): Promise<Book> {
-    return this.booksService.findOne(+id, userPayload.userId);
+  @Get('book/:id')
+  async getBook(@Param('id') id: string): Promise<Book> {
+    return this.booksService.findOnePublished(+id);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateBookDto: UpdateBookDto,
-    @User() userPayload: JwtUserPayload,
-  ): Promise<Book> {
-    return this.booksService.update(+id, updateBookDto, userPayload.userId);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  async remove(
-    @Param('id') id: string,
-    @User() userPayload: JwtUserPayload,
-  ): Promise<Book> {
-    return this.booksService.remove(+id, userPayload.userId);
+  @Get('search')
+  async search(@Query('q') query: string): Promise<PartialBookDto[]> {
+    return this.booksService.search(query);
   }
 }

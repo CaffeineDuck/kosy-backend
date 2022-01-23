@@ -371,6 +371,13 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
+"@fingerprintjs/fingerprintjs@^3.3.2":
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/@fingerprintjs/fingerprintjs/-/fingerprintjs-3.3.2.tgz#8b1d79dfda8b1d9a66958d46894e459faef77c9c"
+  integrity sha512-CB/n3JWnMvhLWgR49Z6qSr6PShXQKGmIiZ0VAmQeoW8foD5z067xUnCxGG7/Fd9rfwmx6I4+8i549j0ujQEcAQ==
+  dependencies:
+    tslib "^2.0.1"
+
 "@gar/promisify@^1.0.1":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.2.tgz#30aa825f11d438671d585bd44e7fd564535fc210"
@@ -7545,7 +7552,7 @@ tsconfig-paths@3.12.0, tsconfig-paths@^3.10.1, tsconfig-paths@^3.9.0:
     minimist "^1.2.0"
     strip-bom "^3.0.0"
 
-tslib@2.3.1, tslib@^2.1.0, tslib@^2.2.0:
+tslib@2.3.1, tslib@^2.0.1, tslib@^2.1.0, tslib@^2.2.0:
   version "2.3.1"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.3.1.tgz"
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
