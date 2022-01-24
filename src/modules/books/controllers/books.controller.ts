@@ -1,6 +1,7 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Book } from '@prisma/client';
+import { FingerPrint } from 'src/decorators/fingerprint.decorator';
 import { PartialBookDto } from '../dto/partial-book.dto';
 import { BooksService } from '../services/books.service';
 
@@ -29,8 +30,13 @@ export class BooksController {
     return this.booksService.top(skip, take);
   }
 
+  @ApiHeader({name: 'fingerPrint'})
   @Get('book/:id')
-  async getBook(@Param('id') id: string): Promise<Book> {
+  async getBook(
+    @Param('id') id: string,
+    @FingerPrint() fingerPrint?: string,
+  ): Promise<Book> {
+    await this.booksService.handleViews(+id, fingerPrint)
     return this.booksService.findOnePublished(+id);
   }
 

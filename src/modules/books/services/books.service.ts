@@ -1,9 +1,11 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Book } from '@prisma/client';
+import { RedisService } from 'nestjs-redis';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { CreateBookDto } from '../dto/create-book.dto';
 import { PartialBookDto } from '../dto/partial-book.dto';
 import { UpdateBookDto } from '../dto/update-book.dto';
+import { Redis } from 'ioredis';
 
 @Injectable()
 export class BooksService {
@@ -13,8 +15,37 @@ export class BooksService {
     price: true,
     views: true,
   };
+  CACHE_TTL = 60 * 60 * 6;
+  redisClient: Redis;
 
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly redisService: RedisService,
+  ) {
+    this.redisClient = this.redisService.getClient();
+    this.redis_cache_remover();
+  }
+
+  async redis_cache_remover() {
+    while (true) {
+      await new Promise((resolve) =>
+        setTimeout(resolve, (1000 * this.CACHE_TTL) / 3),
+      );
+
+      const keys = await this.redisClient.keys('book_views:*');
+
+      if (keys.length === 0) {
+        continue;
+      }
+
+      const pipeline = this.redisClient.pipeline();
+      console.log(await this.redisClient.zscore('book_views:1', 'a'));
+      keys.forEach((key) => {
+        pipeline.zremrangebyscore(key, 0, Date.now());
+      });
+      await pipeline.exec();
+    }
+  }
 
   async verifyUserBook(id: number, userId: number): Promise<Book> {
     const book = await this.prismaService.book.findUnique({ where: { id } });
@@ -52,7 +83,29 @@ export class BooksService {
     });
   }
 
-  async findOnePublished(id: number) {
+  async handleViews(id: number, fingerPrint?: string) {
+    if (!fingerPrint) {
+      return;
+    }
+
+    const alreadyViewed =
+      (await this.redisClient.zscore(`book_views:${id}`, fingerPrint)) != null;
+    if (alreadyViewed) {
+      return;
+    }
+
+    await this.redisClient.zadd(
+      `book_views:${id}`,
+      Date.now() + this.CACHE_TTL,
+      fingerPrint,
+    );
+    await this.prismaService.book.update({
+      where: { id },
+      data: { views: { increment: 1 } },
+    });
+  }
+
+  async findOnePublished(id: number): Promise<Book> {
     return this.prismaService.book.findFirst({
       where: { id, published: true },
     });
