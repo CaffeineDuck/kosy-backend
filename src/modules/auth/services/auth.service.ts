@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { UsersService } from 'src/modules/users/services/users.service';
@@ -9,6 +13,8 @@ import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { refreshPayloadDto } from '../dto/refreshPayload.dto';
 import { ConfigService } from '@nestjs/config';
+import { randomNumberGenerator } from 'src/utils';
+import { ResetPasswordDto } from '../dto/resetPassword.dto';
 
 @Injectable()
 export class AuthService {
@@ -104,5 +110,30 @@ export class AuthService {
     res.cookie('jid', refreshToken, { httpOnly: true });
 
     return this.genAccessToken(user);
+  }
+
+  async forgetPassword(email: string): Promise<void> {
+    const user = await this.usersService.findOneByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const randomNumber = randomNumberGenerator(5);
+    await this.usersService.updateUserToken(user.id, randomNumber);
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const user = await this.usersService.findOneByEmail(resetPasswordDto.email);
+
+    if (!user || user?.resetPasswordToken !== resetPasswordDto.token) {
+      throw new BadRequestException();
+    }
+
+    const { password, ...userWithoutPassword } = resetPasswordDto;
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    await this.usersService.updateUserPassword(user.id, hashedPassword);
   }
 }

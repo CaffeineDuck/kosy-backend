@@ -16,6 +16,10 @@ export class UsersService {
     return this.prismaService.user.findUnique({ where: { id } });
   }
 
+  async findOneByEmail(email: string): Promise<User> {
+    return this.prismaService.user.findUnique({ where: { email } });
+  }
+
   async fineOneWithoutPassword(id: number) {
     const user = await this.findOneById(id);
     const { password, ...userWithoutPassword } = user;
@@ -27,5 +31,19 @@ export class UsersService {
       data: user,
     });
     return createdUser;
+  }
+
+  async updateUserToken(userId: number, token: number): Promise<void> {
+    await this.prismaService.user.update({
+      where: { id: userId },
+      data: { resetPasswordToken: token },
+    });
+  }
+
+  async updateUserPassword(userId: number, password: string): Promise<void> {
+    await this.prismaService.user.update({
+      where: { id: userId },
+      data: { password, resetPasswordToken: null },
+    });
   }
 }

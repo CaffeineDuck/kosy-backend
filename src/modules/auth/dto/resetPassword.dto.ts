@@ -1,14 +1,17 @@
 import {
   IsEmail,
-  IsString,
+  IsNumber,
   Matches,
   MaxLength,
   MinLength,
 } from 'class-validator';
 
-export class UserRegisterDto {
-  @IsString()
-  username: string;
+export class ResetPasswordDto {
+  @IsEmail({message: 'Email is not valid'})
+  email: string;
+
+  @IsNumber()
+  token: number;
 
   @MinLength(4)
   @MaxLength(20)
@@ -16,10 +19,4 @@ export class UserRegisterDto {
     message: 'password too weak',
   })
   password: string;
-
-  @IsEmail()
-  email: string;
-
-  @IsString()
-  name: string;
 }

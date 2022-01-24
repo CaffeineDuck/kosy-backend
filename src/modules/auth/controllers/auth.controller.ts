@@ -6,6 +6,7 @@ import {
   Req,
   Res,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
@@ -13,6 +14,7 @@ import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { UserLoginDto } from '../dto/userLogin.dto';
 import { UserRegisterDto } from '../dto/userRegister.dto';
 import { Request, Response } from 'express';
+import { ResetPasswordDto } from '../dto/resetPassword.dto';
 
 @ApiTags('authentication')
 @Controller('auth')
@@ -39,5 +41,15 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.authService.refreshTokenHandler(req, res);
+  }
+
+  @Post('forget-password')
+  async forgetPasword(@Query('email') email: string) {
+    return this.authService.forgetPassword(email);
+  }
+
+  @Patch('forget-password')
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }
