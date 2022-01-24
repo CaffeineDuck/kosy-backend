@@ -3,7 +3,7 @@ import { Book } from '@prisma/client';
 import { RedisService } from 'nestjs-redis';
 import { PrismaService } from 'src/modules/prisma/prisma.service';
 import { CreateBookDto } from '../dto/create-book.dto';
-import { PartialBookDto } from '../dto/partial-book.dto';
+import { PartialBook } from '../entities/partial-book.entity';
 import { UpdateBookDto } from '../dto/update-book.dto';
 import { Redis } from 'ioredis';
 
@@ -14,6 +14,7 @@ export class BooksService {
     author: true,
     price: true,
     views: true,
+    id: true,
   };
   CACHE_TTL = 60 * 60 * 6;
   redisClient: Redis;
@@ -50,21 +51,21 @@ export class BooksService {
   async verifyUserBook(id: number, userId: number): Promise<Book> {
     const book = await this.prismaService.book.findUnique({ where: { id } });
 
-    if (book.sellerId != userId) {
+    if (!book || book.sellerId != userId) {
       throw new ForbiddenException('You are not the seller of this book');
     }
 
     return book;
   }
 
-  async findAllUserBooks(userId: number): Promise<PartialBookDto[]> {
+  async findAllUserBooks(userId: number): Promise<PartialBook[]> {
     return this.prismaService.book.findMany({
       where: { seller: { id: userId }, published: true },
       select: this.FIELDS_FOR_PARTIAL_BOOK,
     });
   }
 
-  async findAllUserDrafts(userId: number): Promise<PartialBookDto[]> {
+  async findAllUserDrafts(userId: number): Promise<PartialBook[]> {
     return this.prismaService.book.findMany({
       where: { seller: { id: userId }, published: false },
       select: this.FIELDS_FOR_PARTIAL_BOOK,
@@ -80,6 +81,7 @@ export class BooksService {
   async findOne(id: number) {
     return this.prismaService.book.findUnique({
       where: { id },
+      include: { comments: true, tags: true },
     });
   }
 
@@ -108,6 +110,7 @@ export class BooksService {
   async findOnePublished(id: number): Promise<Book> {
     return this.prismaService.book.findFirst({
       where: { id, published: true },
+      include: { comments: true, tags: true },
     });
   }
 
@@ -122,7 +125,7 @@ export class BooksService {
     return this.prismaService.book.delete({ where: { id } });
   }
 
-  async search(query: string): Promise<PartialBookDto[]> {
+  async search(query: string): Promise<PartialBook[]> {
     return this.prismaService.book.findMany({
       select: { ...this.FIELDS_FOR_PARTIAL_BOOK },
       where: {
@@ -135,10 +138,7 @@ export class BooksService {
     });
   }
 
-  async searchUserBooks(
-    query: string,
-    userId: number,
-  ): Promise<PartialBookDto[]> {
+  async searchUserBooks(query: string, userId: number): Promise<PartialBook[]> {
     return this.prismaService.book.findMany({
       select: this.FIELDS_FOR_PARTIAL_BOOK,
       where: {
@@ -154,7 +154,7 @@ export class BooksService {
   async latest(
     stringSkip: string = '0',
     stringTake: string = '20',
-  ): Promise<PartialBookDto[]> {
+  ): Promise<PartialBook[]> {
     const [skip, take] = [+stringSkip, +stringTake];
     return this.prismaService.book.findMany({
       select: this.FIELDS_FOR_PARTIAL_BOOK,
@@ -168,7 +168,7 @@ export class BooksService {
   async top(
     stringSkip: string = '0',
     stringTake: string = '20',
-  ): Promise<PartialBookDto[]> {
+  ): Promise<PartialBook[]> {
     const [skip, take] = [+stringSkip, +stringTake];
     return this.prismaService.book.findMany({
       select: this.FIELDS_FOR_PARTIAL_BOOK,

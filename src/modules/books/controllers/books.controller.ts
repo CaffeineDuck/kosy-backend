@@ -2,7 +2,7 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiHeader, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Book } from '@prisma/client';
 import { FingerPrint } from 'src/decorators/fingerprint.decorator';
-import { PartialBookDto } from '../dto/partial-book.dto';
+import { PartialBook } from '../entities/partial-book.entity';
 import { BooksService } from '../services/books.service';
 
 @ApiTags('books')
@@ -16,7 +16,7 @@ export class BooksController {
   async latestBooks(
     @Query('take') take: string,
     @Query('skip') skip: string,
-  ): Promise<PartialBookDto[]> {
+  ): Promise<PartialBook[]> {
     return this.booksService.latest(skip, take);
   }
 
@@ -26,22 +26,22 @@ export class BooksController {
   async topBooks(
     @Query('take') take: string,
     @Query('skip') skip: string,
-  ): Promise<PartialBookDto[]> {
+  ): Promise<PartialBook[]> {
     return this.booksService.top(skip, take);
   }
 
-  @ApiHeader({name: 'fingerPrint'})
+  @ApiHeader({ name: 'fingerPrint' })
   @Get('book/:id')
   async getBook(
     @Param('id') id: string,
     @FingerPrint() fingerPrint?: string,
   ): Promise<Book> {
-    await this.booksService.handleViews(+id, fingerPrint)
+    await this.booksService.handleViews(+id, fingerPrint);
     return this.booksService.findOnePublished(+id);
   }
 
   @Get('search')
-  async search(@Query('q') query: string): Promise<PartialBookDto[]> {
+  async search(@Query('q') query: string): Promise<PartialBook[]> {
     return this.booksService.search(query);
   }
 }

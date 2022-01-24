@@ -17,7 +17,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/decorators/user.decorator';
 import { JwtUserPayload } from 'src/modules/auth/dto/jwtPayload.dto';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
-import { PartialBookDto } from '../dto/partial-book.dto';
+import { PartialBook } from '../entities/partial-book.entity';
 
 @ApiTags('user books')
 @ApiBearerAuth()
@@ -37,12 +37,12 @@ export class UserBooksController {
   @Get()
   async findAll(
     @User() userPayload: JwtUserPayload,
-  ): Promise<PartialBookDto[]> {
+  ): Promise<PartialBook[]> {
     return this.booksService.findAllUserBooks(userPayload.userId);
   }
 
   @Get('drafts')
-  async findAllDrafts(@User() userPayload: JwtUserPayload): Promise<PartialBookDto[]> {
+  async findAllDrafts(@User() userPayload: JwtUserPayload): Promise<PartialBook[]> {
     return this.booksService.findAllUserDrafts(userPayload.userId)
   }
 
