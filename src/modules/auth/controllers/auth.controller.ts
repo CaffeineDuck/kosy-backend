@@ -13,9 +13,6 @@ import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { UserLoginDto } from '../dto/userLogin.dto';
 import { UserRegisterDto } from '../dto/userRegister.dto';
 import { Request, Response } from 'express';
-import { User } from 'src/decorators/user.decorator';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { JwtUserPayload } from '../dto/jwtPayload.dto';
 
 @ApiTags('authentication')
 @Controller('auth')

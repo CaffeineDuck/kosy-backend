@@ -1,7 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { isInstance, isString } from 'class-validator';
 import { UsersService } from 'src/modules/users/services/users.service';
 import { JwtUserPayload } from '../dto/jwtPayload.dto';
 import { UserLoginDto } from '../dto/userLogin.dto';
