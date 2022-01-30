@@ -31,7 +31,7 @@ export class BooksController {
   }
 
   @ApiHeader({ name: 'fingerPrint' })
-  @Get('book/:id')
+  @Get(':id')
   async getBook(
     @Param('id') id: string,
     @FingerPrint() fingerPrint?: string,
