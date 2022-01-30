@@ -11,7 +11,7 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Public } from 'src/decorators/publicRoute.decorator';
 import { User } from 'src/decorators/user.decorator';
-import { JwtUserPayload } from 'src/modules/auth/dto/jwtPayload.dto';
+import { JwtUserPayload } from 'src/modules/auth/entities/jwtPayload.entity';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';

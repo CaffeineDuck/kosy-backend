@@ -15,7 +15,7 @@ import { UpdateBookDto } from '../dto/update-book.dto';
 import { Book } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/decorators/user.decorator';
-import { JwtUserPayload } from 'src/modules/auth/dto/jwtPayload.dto';
+import { JwtUserPayload } from 'src/modules/auth/entities/jwtPayload.entity';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { PartialBook } from '../entities/partial-book.entity';
 

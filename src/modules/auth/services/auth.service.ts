@@ -6,12 +6,12 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { UsersService } from 'src/modules/users/services/users.service';
-import { JwtUserPayload } from '../dto/jwtPayload.dto';
+import { JwtUserPayload } from '../entities/jwtPayload.entity';
 import { UserLoginDto } from '../dto/userLogin.dto';
 import { UserRegisterDto } from '../dto/userRegister.dto';
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
-import { refreshPayloadDto } from '../dto/refreshPayload.dto';
+import { refreshPayloadDto } from '../entities/refreshPayload.entity';
 import { ConfigService } from '@nestjs/config';
 import { randomNumberGenerator } from 'src/utils';
 import { ResetPasswordDto } from '../dto/resetPassword.dto';
