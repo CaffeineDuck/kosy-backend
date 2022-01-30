@@ -5,8 +5,9 @@ import {
   Body,
   Req,
   Res,
-  Query,
   Patch,
+  BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../services/auth.service';
@@ -15,6 +16,7 @@ import { UserLoginDto } from '../dto/userLogin.dto';
 import { UserRegisterDto } from '../dto/userRegister.dto';
 import { Request, Response } from 'express';
 import { ResetPasswordDto } from '../dto/resetPassword.dto';
+import { isEmail } from 'class-validator';
 
 @ApiTags('authentication')
 @Controller('auth')
@@ -45,6 +47,9 @@ export class AuthController {
 
   @Post('forget-password')
   async forgetPasword(@Query('email') email: string) {
+    if (!isEmail(email)) {
+      throw new BadRequestException('Invalid email');
+    }
     return this.authService.forgetPassword(email);
   }
 
