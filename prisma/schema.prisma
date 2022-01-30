@@ -38,10 +38,12 @@ model User {
     password           String?
     resetPasswordToken Int?
 
-    books        Book[]
-    profile      Profile?
-    profileId    Int?
-    BookComments BookComment[]
+    books                Book[]
+    profile              Profile?
+    profileId            Int?
+    BookComments         BookComment[]
+    likedBookComments    BookComment[] @relation("LikedBookComments")
+    dislikedBookComments BookComment[] @relation("DislikedBookComments")
 }
 
 model Book {
@@ -81,12 +83,15 @@ model BookComment {
     id      Int    @id @default(autoincrement())
     content String
 
-    book            Book          @relation(fields: [bookId], references: [id])
-    bookId          Int
-    user            User?         @relation(fields: [userId], references: [id])
-    userId          Int?
-    replies         BookComment[] @relation("BookCommentReplies")
-    repliesRelation BookComment[] @relation("BookCommentReplies")
+    book        Book          @relation(fields: [bookId], references: [id])
+    bookId      Int
+    user        User?         @relation(fields: [userId], references: [id])
+    userId      Int?
+    repliedToId Int?
+    repliedTo   BookComment?  @relation("BookCommentReplies", references: [id], fields: [repliedToId])
+    replies     BookComment[] @relation("BookCommentReplies")
+    likes       User[]        @relation("LikedBookComments", references: [id])
+    dislikes    User[]        @relation("DislikedBookComments", references: [id])
 }
 
 enum Role {
