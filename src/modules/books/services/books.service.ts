@@ -81,7 +81,10 @@ export class BooksService {
   async findOne(id: number) {
     return this.prismaService.book.findUnique({
       where: { id },
-      include: { comments: true, tags: true },
+      include: {
+        comments: true,
+        tags: true,
+      },
     });
   }
 
@@ -110,7 +113,10 @@ export class BooksService {
   async findOnePublished(id: number): Promise<Book> {
     return this.prismaService.book.findFirst({
       where: { id, published: true },
-      include: { comments: true, tags: true },
+      include: {
+        comments: true,
+        tags: true,
+      },
     });
   }
 
