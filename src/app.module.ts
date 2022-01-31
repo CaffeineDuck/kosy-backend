@@ -7,6 +7,7 @@ import { RedisModule } from 'nestjs-redis';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import config from './config';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import config from './config';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => configService.get('REDIS'),
     }),
+    ScheduleModule.forRoot(),
     BooksModule,
     AuthModule,
     UsersModule,

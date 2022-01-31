@@ -6,6 +6,7 @@ import { CreateBookDto } from '../dto/create-book.dto';
 import { PartialBook } from '../entities/partial-book.entity';
 import { UpdateBookDto } from '../dto/update-book.dto';
 import { Redis } from 'ioredis';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class BooksService {
@@ -24,28 +25,20 @@ export class BooksService {
     private readonly redisService: RedisService,
   ) {
     this.redisClient = this.redisService.getClient();
-    this.redis_cache_remover();
   }
 
+  @Cron('0 */6 * * *')
   async redis_cache_remover() {
-    while (true) {
-      await new Promise((resolve) =>
-        setTimeout(resolve, (1000 * this.CACHE_TTL) / 3),
-      );
+    const keys = await this.redisClient.keys('book_views:*');
 
-      const keys = await this.redisClient.keys('book_views:*');
+    if (keys.length === 0) return;
 
-      if (keys.length === 0) {
-        continue;
-      }
+    const pipeline = this.redisClient.pipeline();
+    keys.forEach((key) => {
+      pipeline.zremrangebyscore(key, 0, Date.now());
+    });
 
-      const pipeline = this.redisClient.pipeline();
-      console.log(await this.redisClient.zscore('book_views:1', 'a'));
-      keys.forEach((key) => {
-        pipeline.zremrangebyscore(key, 0, Date.now());
-      });
-      await pipeline.exec();
-    }
+    await pipeline.exec();
   }
 
   async verifyUserBook(id: number, userId: number): Promise<Book> {
@@ -182,6 +175,13 @@ export class BooksService {
       orderBy: { views: 'desc' },
       take,
       skip,
+    });
+  }
+
+  async saveBook(userId: number, bookId: number) {
+    return this.prismaService.user.update({
+      where: { id: userId },
+      data: { savedBooks: { connect: { id: bookId } } },
     });
   }
 }
