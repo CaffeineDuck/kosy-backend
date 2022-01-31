@@ -14,6 +14,6 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   async getProfile(@User() jwtUser: JwtUserPayload) {
-    return this.usersService.fineOneWithoutPassword(jwtUser.userId);
+    return this.usersService.findProfile(jwtUser.userId);
   }
 }

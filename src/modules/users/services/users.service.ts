@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { UserRegisterDto } from 'src/modules/auth/dto/userRegister.dto';
 import { PrismaService } from '../../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -20,10 +19,11 @@ export class UsersService {
     return this.prismaService.user.findUnique({ where: { email } });
   }
 
-  async fineOneWithoutPassword(id: number) {
-    const user = await this.findOneById(id);
-    const { password, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+  async findProfile(id: number) {
+    return this.prismaService.user.findUnique({
+      where: { id },
+      select: { password: false, resetPasswordToken: false, profile: true },
+    });
   }
 
   async create(user: UserRegisterDto): Promise<User> {
@@ -43,7 +43,11 @@ export class UsersService {
   async updateUserPassword(userId: number, password: string): Promise<void> {
     await this.prismaService.user.update({
       where: { id: userId },
-      data: { password, resetPasswordToken: null },
+      data: {
+        password,
+        resetPasswordToken: null,
+        tokenVersion: { increment: 1 },
+      },
     });
   }
 }

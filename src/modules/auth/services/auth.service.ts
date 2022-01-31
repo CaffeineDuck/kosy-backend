@@ -130,7 +130,7 @@ export class AuthService {
       throw new BadRequestException();
     }
 
-    const { password, ...userWithoutPassword } = resetPasswordDto;
+    const { password } = resetPasswordDto;
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
