@@ -6,6 +6,7 @@ export default (): {
   REDIS: RedisModuleOptions;
   JWT_REFRESH_EXPIRY: number | string;
   JWT: JwtModuleOptions;
+  MULTER_DEST: string;
 } => ({
   PORT: +process.env.PORT || 3000,
   REDIS: {
@@ -19,4 +20,5 @@ export default (): {
       expiresIn: process.env.JWT_EXPIRY || '5m',
     },
   },
+  MULTER_DEST: process.env.MUTLER_DIST || './uploads',
 });

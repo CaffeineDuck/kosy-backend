@@ -43,3 +43,7 @@ lerna-debug.log*
 
 # Generated Docs
 prisma/docs
+
+# Uploads
+uploads/
+!src/modules/uploads/

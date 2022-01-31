@@ -5,11 +5,16 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { RedisModule } from 'nestjs-redis';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UploadsModule } from './modules/uploads/uploads.module';
 import config from './config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ load: [config], isGlobal: true, envFilePath: ['.env'] }),
+    ConfigModule.forRoot({
+      load: [config],
+      isGlobal: true,
+      envFilePath: ['.env'],
+    }),
     PrismaModule,
     RedisModule.forRootAsync({
       inject: [ConfigService],
@@ -18,6 +23,7 @@ import config from './config';
     BooksModule,
     AuthModule,
     UsersModule,
+    UploadsModule,
   ],
   providers: [],
 })

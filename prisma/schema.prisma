@@ -56,8 +56,10 @@ model Book {
     name      String
     author    String
     price     Float
-    keywords  String[]
     ISBN      String?
+    body      Json?
+    keywords  String[]
+    images    String[]
 
     seller   User?         @relation(fields: [sellerId], references: [id])
     sellerId Int?
