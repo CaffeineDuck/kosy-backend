@@ -16,6 +16,7 @@ model Profile {
     id        Int     @id @default(autoincrement())
     firstName String
     lastName  String
+    image     String?
     location  String?
 
     user   User? @relation(fields: [userId], references: [id])
@@ -27,7 +28,6 @@ model User {
     updatedAt DateTime @updatedAt
 
     id                 Int     @id @default(autoincrement())
-    name               String
     email              String  @unique
     emailVerified      Boolean @default(false)
     phoneVerified      Boolean @default(false)
@@ -41,6 +41,7 @@ model User {
     books                Book[]
     profile              Profile?
     profileId            Int?
+    savedBooks           Book[]        @relation("SavedBooks")
     BookComments         BookComment[]
     likedBookComments    BookComment[] @relation("LikedBookComments")
     dislikedBookComments BookComment[] @relation("DislikedBookComments")
@@ -65,6 +66,8 @@ model Book {
     sellerId Int?
     tags     BookTag[]
     comments BookComment[]
+    savedBy  User[]        @relation("SavedBooks", fields: [userId], references: [id])
+    userId   Int?
 }
 
 model BookTag {
@@ -74,7 +77,7 @@ model BookTag {
     tagId Int    @id @default(autoincrement())
     name  String
 
-    book   Book? @relation(fields: [bookId], references: [id])
+    book   Book[] @relation(fields: [bookId], references: [id])
     bookId Int?
 }
 
