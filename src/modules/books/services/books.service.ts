@@ -184,4 +184,10 @@ export class BooksService {
       data: { savedBooks: { connect: { id: bookId } } },
     });
   }
+  async unSaveBook(userId: number, bookId: number) {
+    return this.prismaService.user.update({
+      where: { id: userId },
+      data: { savedBooks: { disconnect: { id: bookId } } },
+    });
+  }
 }

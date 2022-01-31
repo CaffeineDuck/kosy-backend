@@ -1,7 +1,18 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
-import { ApiHeader, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiHeader, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Book } from '@prisma/client';
 import { FingerPrint } from 'src/decorators/fingerprint.decorator';
+import { User } from 'src/decorators/user.decorator';
+import { JwtUserPayload } from 'src/modules/auth/entities/jwtPayload.entity';
+import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { PartialBook } from '../entities/partial-book.entity';
 import { BooksService } from '../services/books.service';
 
@@ -43,5 +54,19 @@ export class BooksController {
   @Get('search')
   async search(@Query('q') query: string): Promise<PartialBook[]> {
     return this.booksService.search(query);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/save')
+  async saveBook(@Param('id') id: string, @User() userJwt: JwtUserPayload) {
+    return this.booksService.saveBook(userJwt.userId, +id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id/save')
+  async unSaveBook(@Param('id') id: string, @User() userJwt: JwtUserPayload) {
+    return this.booksService.unSaveBook(userJwt.userId, +id);
   }
 }
